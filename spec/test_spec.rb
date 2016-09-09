@@ -4,7 +4,7 @@ require_relative '../src/Testing'
 describe 'TADsPec tests' do
 
   verificador = Verificador.new
-  tester = Tester.new
+  #TEST CON DEBERIA
   it 'cualquier objeto entiende :deberia' do
     expect(Object.respond_to? (:deberia)).to be(true)
   end
@@ -13,18 +13,52 @@ describe 'TADsPec tests' do
     expect(Object.respond_to? (:ser)).to be(true)
   end
 
+  #TESTS CON SER
   it 'se pasa el test deberia con ser' do
-    leandro = Persona.new
-    leandro.edad = 20
-
+    leandro = Persona.new 20
     expect(leandro.edad.deberia ser 15).to be(false)
   end
 
   it 'falla el test deberia con ser' do
-    expect(1.deberia ser 1).to be(true)
+    expect(1.deberia ser 2).to be(false)
   end
 
-  #TODO: cambiar las aserciones de los tests!
+
+  #TESTS CON TENER
+  it 'se pasa el test tener_' do
+    leandro = Persona.new(22)
+    expect(leandro.deberia tener_edad 22).to be(true)
+  end
+
+  it 'falla el test_tener' do
+    leandro = Persona.new 20
+    expect(leandro.deberia tener_edad 22).to be(false)
+  end
+
+  #TESTS CON ENTENDER
+  it 'pasa el tests con metodos heredados' do
+    leandro = Persona.new 20
+    expect(leandro.deberia entender :class).to be(true)
+  end
+
+  it 'pasa el tests con metodos definidos' do
+
+    leandro = Persona.new 20
+    Persona.send(:define_method, :saludar, proc{'hola'})
+
+    expect(leandro.deberia entender :saludar).to be(true)
+  end
+
+  it 'falla el test con metodos no definidos' do
+
+    leandro = Persona.new 20
+    expect(leandro.deberia entender :tirate).to be(false)
+  end
+
+  #TESTS CON EXPLOTAR
+
+
+   #TODO: cambiar las aserciones de los tests!
   it 'se testea el contexto' do
       expect(verificador.testear).to be(0)
   end
@@ -41,11 +75,6 @@ describe 'TADsPec tests' do
     expect(verificador.es_test? (:testear_que_algo)).to be(true)
   end
 
-  it 'se elimina el mensaje deberia' do
-    verificador.sacar_deberia
-    expect(Object.respond_to? (:deberia)).to be(false)
-  end
-
   it 'se testea una clase con tests' do
     expect(verificador.contiene_tests MiSuiteDeTests).to be(true)
   end
@@ -55,10 +84,14 @@ describe 'TADsPec tests' do
     expect(verificador.resultado.tests_corridos).to be(1)
   end
 
-  it 'se define el test tener_' do
-    leandro = Persona.new
-    leandro.deberia tener_edad 22
-    expect(leandro.respond_to? (:tener_edad)).to be(true)
+  it 'se testea mas de un test de una suite' do
+    verificador.testear PersonaTest, :testear_que_se_use_la_edad, :testear_que_la_edad
+    expect(verificador.resultado.tests_corridos).to be(2)
+  end
+
+  it 'se elimina el mensaje deberia' do
+    verificador.sacar_deberia
+    expect(Object.respond_to? (:deberia)).to be(false)
   end
 
 end
